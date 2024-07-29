@@ -1,5 +1,8 @@
-from sqlalchemy import Column, Integer, String
-from sqlalchemy.orm import relationship
+from typing import List
+
+from sqlalchemy import String, Boolean
+from sqlalchemy_utils import EmailType, PhoneNumberType
+from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.database import Base
 
@@ -7,11 +10,14 @@ from app.database import Base
 class Users(Base):
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, nullable=False)
-    email = Column(String, nullable=False)
-    hashed_password = Column(String, nullable=False)
+    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True, nullable=False)
+    email: Mapped[str] = mapped_column(EmailType, nullable=False, unique=True)
+    hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
     # ФИО Клиента
+    first_name: Mapped[str] = mapped_column(nullable=False)
+    last_name: Mapped[str] = mapped_column(nullable=False)
     # тел
+    phone_number: Mapped[str] = mapped_column(PhoneNumberType)  # TODO: nullable= False?, unique = True?
     # Любимый тренер 1
     # Любимый тренер 2
 
@@ -23,6 +29,7 @@ class Users(Base):
     # Мед справка до..
 
     # Проблемный клиент
+    is_problem_client = mapped_column(Boolean, default=False)
     # Контрольная дата
     # Откуда пришёл
     # Кто привёл
@@ -50,7 +57,15 @@ class Users(Base):
     # покупки допуслуг,
     # комментариев менеджеров с датами и временем записи.
 
-    booking = relationship("Bookings", back_populates="user")
+    # date_joined: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=datetime.now(tz=timezone.utc))
+    # register_date = Column(Date, nullable=False, default=func.current_date())
+    # refresh_token: Mapped[str] = mapped_column(nullable=True)
+    # is_active: Mapped[bool] = mapped_column(default=True)
+    # is_superuser: Mapped[bool] = mapped_column(default=False)
+    # is_confirmed = Column(Boolean, server_default="FALSE", nullable=False)
+
+    # booking = relationship("Bookings", back_populates="user")
+    booking: Mapped[List["Bookings"]] = relationship(back_populates="user")
 
     def __str__(self):
         return f"Пользователь {self.email}"
