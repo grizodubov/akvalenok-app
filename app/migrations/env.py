@@ -14,8 +14,7 @@ from app.spaces.pools.models import Pools
 from app.bookings.models import Bookings
 from app.users.models import Users
 
-
-# для alembic, который вынесен нами из папки app, чтобы мог обащаться к импортам
+# для alembic, который вынесен нами из папки app, чтобы мог общаться к импортам
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
 
 # this is the Alembic Config object, which provides

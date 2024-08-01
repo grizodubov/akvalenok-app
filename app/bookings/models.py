@@ -1,6 +1,7 @@
-from typing import List
+import datetime
+from typing import Optional
 
-from sqlalchemy import Computed, Date, ForeignKey, Integer
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.database import Base
@@ -9,19 +10,20 @@ from app.database import Base
 class Bookings(Base):
     __tablename__ = "bookings"
 
-    id = mapped_column(Integer, primary_key=True)
-    pool_id = mapped_column(Integer, ForeignKey("rooms.id"))
-    user_id = mapped_column(Integer, ForeignKey("users.id"))
-    time_from = mapped_column(Date, nullable=False)
-    time_to = mapped_column(Date, nullable=False)
-    price = mapped_column(Integer, nullable=False)
-    total_cost = mapped_column(Integer, Computed("(date_to - date_from) * price"))
-    total_days = mapped_column(Integer, Computed("date_to - date_from"))
+    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True)
 
-    # user = relationship("Users", back_populates="booking")
-    user: Mapped[List["Users"]] = relationship(back_populates="booking")
-    # pool = relationship("Pools", back_populates="booking")
-    pool: Mapped[List["Pools"]] = relationship(back_populates="booking")
+    time_from: Mapped[datetime.datetime] = mapped_column(nullable=False)
+    time_to: Mapped[datetime.datetime] = mapped_column(nullable=False)
+    price: Mapped[int] = mapped_column(nullable=False)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    user: Mapped["User"] = relationship(uselist=False, lazy="selectin")
+    pool_id: Mapped[int] = mapped_column(ForeignKey("pools.id"))
+    pool: Mapped["Pools"] = relationship(back_populates="booking")
+
+    created_at: Mapped[datetime.datetime] = mapped_column(nullable=False, default=datetime.datetime.now())
+    updated_at: Mapped[datetime.datetime] = mapped_column(nullable=False, default=datetime.datetime.now())
+    deleted_at: Mapped[Optional[datetime.datetime]] = mapped_column(nullable=True)
 
     def __str__(self):
         return f"Занятия #{self.id}"

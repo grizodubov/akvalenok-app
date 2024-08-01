@@ -16,8 +16,7 @@ class Spaces(Base):
     pools_quantity = mapped_column(Integer, nullable=False)
     image_id = mapped_column(Integer)
 
-    # pool = relationship("Pools", back_populates="space")
-    pools: Mapped[List["Pools"]] = relationship(back_populates="space")
+    pool: Mapped[List["Pools"]] = relationship(back_populates="space")
 
     def __str__(self):
         return f"Помещение {self.name} {self.location[:30]}"

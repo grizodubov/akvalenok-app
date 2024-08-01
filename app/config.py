@@ -17,7 +17,8 @@ class Settings(BaseSettings):
 
     # @root_validator
     # def get_database_url(cls, v):
-    #     v["DATABASE_URL"] = f"postgresql+asyncpg://{v['DB_USER']}:{v['DB_PASS']}@{v['DB_HOST']}:{v['DB_PORT']}/{v['DB_NAME']}"
+    #     v["DATABASE_URL"] = f"postgresql+asyncpg://{v['DB_USER']}:
+    #       {v['DB_PASS']}@{v['DB_HOST']}:{v['DB_PORT']}/{v['DB_NAME']}"
     #     return v
     @property
     def DATABASE_URL(self) -> PostgresDsn:
@@ -38,7 +39,8 @@ class Settings(BaseSettings):
 settings = Settings()
 
 # №4
-# settings.DATABASE_URL = f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
+# settings.DATABASE_URL = f"postgresql+asyncpg://{settings.DB_USER}:
+#   {settings.DB_PASS}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
 
 # print(settings.DB_HOST)

@@ -16,29 +16,30 @@ class Users(Base):
     # ФИО Клиента
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[str] = mapped_column(nullable=False)
+    middle_name: Mapped[str] = mapped_column(nullable=False)
     # тел
-    phone_number: Mapped[str] = mapped_column(PhoneNumberType)  # TODO: nullable= False?, unique = True?
+    phone_number: Mapped[str] = mapped_column(PhoneNumberType, nullable=False, unique=True)
     # Любимый тренер 1
     # Любимый тренер 2
 
     # ИФ ребенок 1 дата рождения
-    # Мед справка до..
+    # Мед справка до...
     # ИФ ребенок 2 дата рождения
-    # Мед справка до..
+    # Мед справка до...
     # ИФ ребенок 3 дата рождения
-    # Мед справка до..
+    # Мед справка до...
 
     # Проблемный клиент
     is_problem_client = mapped_column(Boolean, default=False)
     # Контрольная дата
-    # Откуда пришёл
-    # Кто привёл
+    # Откуда пришёл?
+    # Кто привёл?
     # Причина ухода
 
     # Воронка продаж С переключением статуса
 
     # Действующий абонемент
-    # Дата активации /окончания абонемента
+    # Дата активации / окончания абонемента.
     # Осталось занятий
     # Не назначенные занятия
 
@@ -50,11 +51,11 @@ class Users(Base):
     # Дополнительные услуги --> # Чек бокс (выбор)
     # Сумма к оплате
     # Наличные/переводом
-    # Архив приобретённых допов
+    # Архив приобретённых дополнительных услуг
 
     # Журнал записей комментариев по клиенту.
     # Лог добавления абонементов,
-    # покупки допуслуг,
+    # покупки дополнительных услуг,
     # комментариев менеджеров с датами и временем записи.
 
     # date_joined: Mapped[DateTime] = mapped_column(DateTime(timezone=True), default=datetime.now(tz=timezone.utc))
