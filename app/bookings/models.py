@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, Computed
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.database import Base
@@ -20,6 +20,9 @@ class Bookings(Base):
     user: Mapped["User"] = relationship(uselist=False, lazy="selectin")
     pool_id: Mapped[int] = mapped_column(ForeignKey("pools.id"))
     pool: Mapped["Pools"] = relationship(back_populates="booking")
+
+    total_cost: Mapped[int] = mapped_column(Computed("(time_to - time_from) * price"))
+    total_days: Mapped[int] = mapped_column(Computed("time_to - time_from"))
 
     created_at: Mapped[datetime.datetime] = mapped_column(nullable=False, default=datetime.datetime.now())
     updated_at: Mapped[datetime.datetime] = mapped_column(nullable=False, default=datetime.datetime.now())
