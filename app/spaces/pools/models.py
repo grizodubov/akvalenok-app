@@ -1,9 +1,7 @@
 from sqlalchemy import JSON, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
-from app.bookings.models import Bookings
 from app.database import Base
-from app.spaces.models import Spaces
 
 
 class Pools(Base):

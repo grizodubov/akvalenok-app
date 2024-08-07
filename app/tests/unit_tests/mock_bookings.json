@@ -1,0 +1,23 @@
+[
+  {
+    "pool_id": 1,
+    "user_id": 1,
+    "time_from": "2023-06-15",
+    "time_to": "2023-06-30",
+    "price": 24500
+  },
+  {
+    "pool_id": 2,
+    "user_id": 1,
+    "time_from": "2023-04-01",
+    "time_to": "2023-04-19",
+    "price": 4300
+  },
+  {
+    "pool_id": 1,
+    "user_id": 2,
+    "time_from": "2023-06-05",
+    "time_to": "2023-06-25",
+    "price": 24500
+  }
+]

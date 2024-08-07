@@ -34,9 +34,9 @@ class IncorrectTokenFormatException(BookingException):
     detail = "Неверный формат токена"
 
 
-class RoomCannotBeBookedException(BookingException):
+class PoolCannotBeBookedException(BookingException):
     status_code = status.HTTP_409_CONFLICT
-    detail = "Не осталось свободных номеров"
+    detail = "Не осталось свободных бассейнов"
 
 
 class DateFromCannotBeAfterDateTo(BookingException):
@@ -44,9 +44,9 @@ class DateFromCannotBeAfterDateTo(BookingException):
     detail = "Дата заезда не может быть позже даты выезда"
 
 
-class CannotBookHotelForLongPeriod(BookingException):
+class CannotBookSpaceForLongPeriod(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Невозможно забронировать отель сроком более месяца"
+    detail = "Невозможно забронировать бассейн сроком более месяца"
 
 
 class CannotAddDataToDatabase(BookingException):

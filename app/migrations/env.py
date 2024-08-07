@@ -1,18 +1,16 @@
-from logging.config import fileConfig
 import sys
+from logging.config import fileConfig
 from os.path import abspath, dirname
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from app.config import settings
 from app.database import Base
 from app.spaces.models import Spaces
 from app.spaces.pools.models import Pools
-from app.bookings.models import Bookings
 from app.users.models import Users
+from app.bookings.models import Bookings
 
 # для alembic, который вынесен нами из папки app, чтобы мог общаться к импортам
 sys.path.insert(0, dirname(dirname(abspath(__file__))))
@@ -23,7 +21,7 @@ config = context.config
 
 # из-за того, что alembic синхронный, а подключение у нас асинхронное
 # config.set_main_option("sqlalchemy.url", DATABASE_URL)
-config.set_main_option("sqlalchemy.url", f"{settings.DATABASE_URL}?async_fallback=True")
+config.set_main_option("sqlalchemy.url", f"{settings.database_url}?async_fallback=True")
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

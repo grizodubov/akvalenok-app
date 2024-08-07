@@ -6,7 +6,7 @@ from app.users.auth import get_password_hash, authenticate_user, create_access_t
 from app.users.dao import UsersDAO
 from app.users.dependencies import get_current_user, get_current_admin_user
 from app.users.models import Users
-from app.users.schemas import SUserAuth
+from app.users.schemas import SUserAuth, SUser
 
 router = APIRouter(
     prefix="/auth",
@@ -15,7 +15,7 @@ router = APIRouter(
 
 
 @router.post("/register")
-async def register_user(user_data: SUserAuth):
+async def register_user(user_data: SUserAuth) -> None:
     existing_user = await UsersDAO.find_one_or_none(email=user_data.email)
     if existing_user:
         raise UserAlreadyExistsException
@@ -24,7 +24,7 @@ async def register_user(user_data: SUserAuth):
 
 
 @router.post("/login")
-async def login_user(response: Response, user_data: SUserAuth):
+async def login_user(response: Response, user_data: SUserAuth) -> dict[str, str]:
     user = await authenticate_user(user_data.email, user_data.password)
     if not user:
         raise IncorrectEmailOrPasswordException
@@ -34,14 +34,16 @@ async def login_user(response: Response, user_data: SUserAuth):
 
 
 @router.post("/logout")
-async def logout_user(response: Response):
+async def logout_user(response: Response) -> dict[str, str]:
     response.delete_cookie("booking_access_token")
     return {"message": "Successfully logged out"}
 
 
 @router.get("/me")
-async def get_current_user(current_user: Users = Depends(get_current_user)):
-    return current_user
+async def get_current_user(
+        current_user: Users = Depends(get_current_user)
+) -> SUser:
+    return SUser.model_validate(current_user)
 
 
 @router.get("/all")

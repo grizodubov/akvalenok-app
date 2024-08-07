@@ -1,0 +1,24 @@
+<!doctype html> <!--А вообще сюда бы вуй :)-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Запись в бассейн</title>
+</head>
+<body>
+<div>
+    {% for space in spaces %}
+    <div style="display: flex; margin: 10px 10px 15px;">
+        <img src="{{ url_for('static', path='images/' + space.image_id|string + '.webp') }}" alt="Фото бассейна"
+             width="200">
+        <div style="margin: 10px">
+            <h1>{{ space.name }}</h1>
+            <h4>{{ space.location }}</h4>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+</body>
+</html>

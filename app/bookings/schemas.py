@@ -4,12 +4,19 @@ from pydantic import BaseModel, ConfigDict
 
 
 class SBooking(BaseModel):
-    model_config = ConfigDict(from_attributes=True) # Pydantic v2
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     pool_id: int
     user_id: int
-    time_from: date
-    time_to: date
+    date_from: date
+    date_to: date
     price: int
     total_cost: int
     total_days: int
+
+
+class SNewBooking(BaseModel):
+    pool_id: int
+    date_from: date
+    date_to: date

@@ -14,8 +14,7 @@ class Users(Base):
     email: Mapped[str] = mapped_column(EmailType, nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
 
-    booking: Mapped[List["Bookings"]] = relationship(back_populates="user")
-
+    role: Mapped[str] = mapped_column(nullable=False, default="client")
     # ФИО Клиента
     first_name: Mapped[str] = mapped_column(nullable=False)
     last_name: Mapped[str] = mapped_column(nullable=False)
@@ -67,6 +66,9 @@ class Users(Base):
     # is_active: Mapped[bool] = mapped_column(default=True)
     # is_superuser: Mapped[bool] = mapped_column(default=False)
     # is_confirmed = Column(Boolean, server_default="FALSE", nullable=False)
+
+    # booking = relationship("Bookings", back_populates="user")
+    booking: Mapped[List["Bookings"]] = relationship(back_populates="user")
 
     def __str__(self):
         return f"Пользователь {self.email}"
