@@ -1,4 +1,5 @@
 import time
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 import sentry_sdk
@@ -25,23 +26,24 @@ from app.users.router import router as router_users
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # before execute app
     print("start app")
     redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}")
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     yield
     # after execute app
+
+# if settings.MODE != "TEST":
+    sentry_sdk.init(
+        dsn=settings.SENTRY_DSN,
+        traces_sample_rate=1.0,
+        profiles_sample_rate=1.0,
+    )
 app = FastAPI(
     title="Запись в бассейн",
     lifespan=lifespan
 )
-
-if settings.MODE != "TEST":
-    sentry_sdk.init(
-        dsn=settings.SENTRY_DSN,
-        traces_sample_rate=1.0,
-    )
 
 app.mount("/static", StaticFiles(directory="app/static"), "static")
 

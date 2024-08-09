@@ -22,7 +22,7 @@ class Bookings(Base):
     updated_at: Mapped[datetime] = mapped_column(nullable=False, default=datetime.now())
     deleted_at: Mapped[Optional[datetime]] = mapped_column(nullable=True)
 
-    user: Mapped["User"] = relationship(uselist=False, lazy="selectin")
+    user: Mapped["Users"] = relationship(uselist=False, lazy="selectin")
     pool: Mapped["Pools"] = relationship(back_populates="booking")
 
     def __str__(self):
