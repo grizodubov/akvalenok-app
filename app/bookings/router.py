@@ -29,8 +29,8 @@ async def add_booking(
     booking_to_add = await BookingDAO.add(
         int(user.id),
         booking.pool_id,
-        booking.date_from,
-        booking.date_to,
+        booking.time_from,
+        booking.time_to,
     )
     if not booking_to_add:
         raise PoolCannotBeBookedException

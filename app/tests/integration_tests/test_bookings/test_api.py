@@ -30,8 +30,8 @@ async def test_add_and_get_booking(
         "/bookings",
         json={
             "room_id": pool_id,
-            "date_from": time_from,
-            "date_to": time_to,
+            "time_from": time_from,
+            "time_to": time_to,
         },
     )
     assert response.status_code == status_code

@@ -13,14 +13,14 @@ class PoolDAO(BaseDAO):
 
     @classmethod
     async def find_all(  # type: ignore[override]
-            cls, space_id: int, date_from: date, date_to: date
+            cls, space_id: int, time_from: date, time_to: date
     ):
         """
         WITH booked_pools AS (
             SELECT pool_id, COUNT(pool_id) AS pools_booked
             FROM bookings
-            WHERE (date_from >= '2023-05-15' AND date_from <= '2023-06-20') OR
-                  (date_from <= '2023-05-15' AND date_to > '2023-05-15')
+            WHERE (time_from >= '2023-05-15' AND time_from <= '2023-06-20') OR
+                  (time_from <= '2023-05-15' AND time_to > '2023-05-15')
             GROUP BY pool_id
         )
         SELECT
@@ -29,12 +29,12 @@ class PoolDAO(BaseDAO):
         LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
         WHERE space_id = 1
         """
-        booked_pools = cls.get_booked_pools(date_from, date_to)
+        booked_pools = cls.get_booked_pools(time_from, time_to)
 
         get_pools = (
             select(
                 Pools.__table__.columns,
-                (Pools.price * (date_to - date_from).days).label("total_cost"),
+                (Pools.price * (time_to - time_from).days).label("total_cost"),
                 (Pools.quantity - func.coalesce(booked_pools.c.pools_booked, 0)).label(
                     "pools_left"
                 ),
@@ -47,19 +47,19 @@ class PoolDAO(BaseDAO):
             return pools.mappings().all()
 
     @classmethod
-    def get_booked_pools(cls, date_from: date, date_to: date):
+    def get_booked_pools(cls, time_from: date, time_to: date):
         booked_pools = (
             select(Bookings.pool_id, func.count(Bookings.pool_id).label("pools_booked"))
             .select_from(Bookings)
             .where(
                 or_(
                     and_(
-                        Bookings.date_from >= date_from,
-                        Bookings.date_from <= date_to,
+                        Bookings.time_from >= time_from,
+                        Bookings.time_from <= time_to,
                         ),
                     and_(
-                        Bookings.date_from <= date_from,
-                        Bookings.date_to > date_from,
+                        Bookings.time_from <= time_from,
+                        Bookings.time_to > time_from,
                         ),
                 ),
             )

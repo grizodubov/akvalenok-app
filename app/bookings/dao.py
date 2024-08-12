@@ -91,8 +91,8 @@ class BookingDAO(BaseDAO):
                         .values(
                             pool_id=pool_id,
                             user_id=user_id,
-                            date_from=time_from,
-                            date_to=time_to,
+                            time_from=time_from,
+                            time_to=time_to,
                             price=price,
                         )
                         .returning(Bookings)
@@ -111,7 +111,7 @@ class BookingDAO(BaseDAO):
             extra = {
                 "user_id": user_id,
                 "pool_id": pool_id,
-                "date_from": time_from,
-                "date_to": time_to,
+                "time_from": time_from,
+                "time_to": time_to,
             }
         logger.error(f"{message}: Cannot add booking", extra=extra, exc_info=True)

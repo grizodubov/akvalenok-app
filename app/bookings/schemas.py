@@ -1,6 +1,7 @@
 from datetime import date
 
 from pydantic import BaseModel, ConfigDict
+from sqlalchemy.orm import Mapped
 
 
 class SBooking(BaseModel):
@@ -9,14 +10,14 @@ class SBooking(BaseModel):
     id: int
     pool_id: int
     user_id: int
-    date_from: date
-    date_to: date
+    time_from: date
+    time_to: date
     price: int
-    total_cost: int
+    total_cost: Mapped[int]
     total_days: int
 
 
 class SNewBooking(BaseModel):
     pool_id: int
-    date_from: date
-    date_to: date
+    time_from: date
+    time_to: date
