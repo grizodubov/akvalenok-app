@@ -13,8 +13,8 @@ class SBooking(BaseModel):
     time_from: date
     time_to: date
     price: int
-    total_cost: Mapped[int]
-    total_days: int
+    total_cost: int
+    total_half_hours: int
 
 
 class SNewBooking(BaseModel):

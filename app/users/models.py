@@ -16,11 +16,11 @@ class Users(Base):
 
     role: Mapped[str] = mapped_column(nullable=False, default="client")
     # ФИО Клиента
-    first_name: Mapped[str] = mapped_column(nullable=False)
-    last_name: Mapped[str] = mapped_column(nullable=False)
-    middle_name: Mapped[str] = mapped_column(nullable=False)
+    first_name: Mapped[str] = mapped_column(nullable=True)
+    last_name: Mapped[str] = mapped_column(nullable=True)
+    middle_name: Mapped[str] = mapped_column(nullable=True)
     # тел
-    phone_number: Mapped[str] = mapped_column(PhoneNumberType, nullable=False, unique=True)
+    phone_number: Mapped[str] = mapped_column(PhoneNumberType, nullable=True, unique=True)
     # Любимый тренер 1
     # Любимый тренер 2
 

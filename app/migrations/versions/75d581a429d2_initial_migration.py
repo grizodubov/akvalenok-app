@@ -1,19 +1,19 @@
 """Initial migration
 
-Revision ID: ae29c1a2b392
+Revision ID: 75d581a429d2
 Revises: 
-Create Date: 2024-07-31 15:22:00.159146
+Create Date: 2024-08-12 17:12:29.734592
 
 """
 from typing import Sequence, Union
 
+import sqlalchemy_utils
 from alembic import op
 import sqlalchemy as sa
-import sqlalchemy_utils
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ae29c1a2b392'
+revision: str = '75d581a429d2'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,12 +34,14 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('email', sqlalchemy_utils.types.email.EmailType(length=255), nullable=False),
     sa.Column('hashed_password', sa.String(length=1024), nullable=False),
-    sa.Column('first_name', sa.String(), nullable=False),
-    sa.Column('last_name', sa.String(), nullable=False),
-    sa.Column('middle_name', sa.String(), nullable=False),
-    sa.Column('phone_number', sqlalchemy_utils.types.phone_number.PhoneNumberType(length=20), nullable=False),
+    sa.Column('role', sa.String(), nullable=False),
+    sa.Column('first_name', sa.String(), nullable=True),
+    sa.Column('last_name', sa.String(), nullable=True),
+    sa.Column('middle_name', sa.String(), nullable=True),
+    sa.Column('phone_number', sqlalchemy_utils.types.phone_number.PhoneNumberType(length=20), nullable=True),
     sa.Column('is_problem_client', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email'),
     sa.UniqueConstraint('phone_number')
     )
     op.create_table('pools',
@@ -56,11 +58,13 @@ def upgrade() -> None:
     )
     op.create_table('bookings',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('pool_id', sa.Integer(), nullable=False),
     sa.Column('time_from', sa.DateTime(), nullable=False),
     sa.Column('time_to', sa.DateTime(), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
-    sa.Column('pool_id', sa.Integer(), nullable=False),
+    sa.Column('total_cost', sa.Integer(), sa.Computed('(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800) * price', ), nullable=False),
+    sa.Column('total_half_hours', sa.Integer(), sa.Computed('(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800)', ), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
     sa.Column('deleted_at', sa.DateTime(), nullable=True),
