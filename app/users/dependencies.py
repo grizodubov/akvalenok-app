@@ -48,6 +48,6 @@ async def get_current_user(token: str = Depends(get_token)) -> SUser:
 
 async def get_current_admin_user(current_user: Users = Depends(get_current_user)):
     # if not current_user.is_admin:
-    if not current_user.role != "admin":
+    if current_user.role != "admin":
         raise IncorrectUserRoleException
     return current_user
