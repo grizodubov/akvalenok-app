@@ -8,7 +8,6 @@ class Pools(Base):
     __tablename__ = "pools"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
-    # space_id = mapped_column(Integer, ForeignKey("spaces.id"), nullable=False)
     space_id: Mapped[int] = mapped_column(Integer, ForeignKey("spaces.id"), nullable=False)
     name = mapped_column(String)
     description = mapped_column(String)

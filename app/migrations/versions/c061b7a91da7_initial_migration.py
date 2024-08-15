@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 0457637600c5
+Revision ID: c061b7a91da7
 Revises: 
-Create Date: 2024-08-13 12:50:02.430269
+Create Date: 2024-08-15 20:03:39.013917
 
 """
 from typing import Sequence, Union
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '0457637600c5'
+revision: str = 'c061b7a91da7'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -60,14 +60,14 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('pool_id', sa.Integer(), nullable=False),
-    sa.Column('time_from', sa.DateTime(), nullable=False),
-    sa.Column('time_to', sa.DateTime(), nullable=False),
+    sa.Column('time_from', sa.TIMESTAMP(timezone=True), nullable=False),
+    sa.Column('time_to', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('price', sa.Integer(), nullable=False),
-    sa.Column('total_cost', sa.Integer(), sa.Computed('(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800) * price', ), nullable=False),
-    sa.Column('total_half_hours', sa.Integer(), sa.Computed('(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800)', ), nullable=False),
-    sa.Column('created_at', sa.DateTime(), nullable=False),
-    sa.Column('updated_at', sa.DateTime(), nullable=False),
-    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('total_cost_rounded', sa.Integer(), sa.Computed('ROUND(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800) * price', ), nullable=False),
+    sa.Column('total_half_hours_rounded', sa.Integer(), sa.Computed('ROUND(EXTRACT(EPOCH FROM (time_to - time_from)) / 1800)', ), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('deleted_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['pool_id'], ['pools.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
