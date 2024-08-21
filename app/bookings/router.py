@@ -4,7 +4,10 @@ from fastapi import APIRouter, Depends, status
 from pydantic import TypeAdapter
 
 from app.bookings.dao import BookingDAO
-from app.bookings.schemas import SBooking, SNewBooking
+from app.bookings.schemas import (
+    SBooking,
+    SNewBooking,
+)
 from app.exceptions import PoolCannotBeBookedException
 from app.tasks.tasks import send_booking_confirmation_email
 from app.users.dependencies import get_current_user
@@ -27,14 +30,16 @@ async def add_booking(
         user: Users = Depends(get_current_user),
 ) -> Optional[SBooking]:
     booking_to_add = await BookingDAO.add(
-        int(user.id),
+        user.id,
         booking.pool_id,
-        booking.time_from,
-        booking.time_to,
+        booking.date_from,
+        # booking.time_from,
+        booking.date_to,
+        # booking.time_to,
     )
     if not booking_to_add:
         raise PoolCannotBeBookedException
-    booking_dict = TypeAdapter(SBooking).validate_python(booking_to_add).model_dump()
+    booking_dict = TypeAdapter(SNewBooking).validate_python(booking_to_add).model_dump()
     send_booking_confirmation_email.delay(booking_dict, str(user.email))
     return booking_to_add
 

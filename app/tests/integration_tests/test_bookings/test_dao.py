@@ -10,8 +10,8 @@ async def test_and_get_booking():
     new_booking = await BookingDAO.add(
         user_id=2,
         pool_id=2,
-        time_from=date(2023, 7, 10),
-        time_to=date(2023, 7, 24),
+        date_from=date(2023, 7, 10),
+        date_to=date(2023, 7, 24),
     )
 
     assert new_booking.user_id == 2
@@ -35,8 +35,8 @@ async def test_booking_crud(user_id: int, pool_id: int, get_async_client: AsyncC
     new_booking = await BookingDAO.add(
         user_id=user_id,
         pool_id=pool_id,
-        time_from=date(2023, 11, 25),
-        time_to=date(2023, 12, 21),
+        date_from=date(2023, 11, 25),
+        date_to=date(2023, 12, 21),
     )
     assert new_booking.user_id == user_id
     assert new_booking.room_id == pool_id

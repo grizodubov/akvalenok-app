@@ -4,7 +4,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.parametrize(
-    "pool_id,time_from,time_to,booked_pools,status_code",
+    "pool_id,date_from,date_to,booked_pools,status_code",
     [
         (4, "2030-05-01", "2030-05-15", 3, status.HTTP_201_CREATED),
         (4, "2030-05-02", "2030-05-16", 4, status.HTTP_201_CREATED),
@@ -20,8 +20,8 @@ from httpx import AsyncClient
 )
 async def test_add_and_get_booking(
         pool_id: int,
-        time_from: str,
-        time_to: str,
+        date_from: str,
+        date_to: str,
         booked_pools: int,
         status_code: int,
         get_authenticated_async_client: AsyncClient,
@@ -30,8 +30,8 @@ async def test_add_and_get_booking(
         "/bookings",
         json={
             "room_id": pool_id,
-            "time_from": time_from,
-            "time_to": time_to,
+            "date_from": date_from,
+            "date_to": date_to,
         },
     )
     assert response.status_code == status_code

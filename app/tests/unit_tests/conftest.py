@@ -36,8 +36,8 @@ async def prepare_database() -> None:
     bookings = open_mock_json("bookings")
 
     for booking in bookings:
-        booking["time_from"] = datetime.strptime(booking["time_from"], "%Y-%m-%d")
-        booking["time_to"] = datetime.strptime(booking["time_to"], "%Y-%m-%d")
+        booking["date_from"] = datetime.strptime(booking["date_from"], "%Y-%m-%d")
+        booking["date_to"] = datetime.strptime(booking["date_to"], "%Y-%m-%d")
 
     async with async_session_maker() as session:
         for model, values in [

@@ -1,16 +1,20 @@
-from typing import List
+import uuid
+from typing import List, TYPE_CHECKING
 
 from sqlalchemy import String, Boolean
 from sqlalchemy_utils import EmailType, PhoneNumberType
 from sqlalchemy.orm import relationship, mapped_column, Mapped
+from sqlalchemy.dialects.postgresql import UUID
 
 from app.database import Base
 
+if TYPE_CHECKING:
+    from app.bookings.models import Bookings
 
 class Users(Base):
     __tablename__ = "users"
 
-    id: Mapped[int] = mapped_column(autoincrement=True, primary_key=True, nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     email: Mapped[str] = mapped_column(EmailType, nullable=False, unique=True)
     hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
 

@@ -1,3 +1,4 @@
+import uuid
 from datetime import date, datetime, timezone
 
 from sqlalchemy import select, and_, or_, func, insert
@@ -15,18 +16,18 @@ class BookingDAO(BaseDAO):
     @classmethod
     async def add(
             cls,
-            user_id: int,
+            user_id: uuid.UUID,
             pool_id: int,
-            time_from: datetime,
-            time_to: datetime
+            date_from: date,
+            date_to: date
     ):
-        print(time_from, time_to)
+        # print(date_from, date_to)
         """
             WITH booked_pools AS (
                 SELECT * FROM bookings
                 WHERE pool_id = 1
-                AND (time_from >= '2023-05-15' AND time_from <= '2023-06-20')
-                OR (time_from <= '2023-05-15' AND time_to > '2023-05-15')
+                AND (date_from >= '2023-05-15' AND date_from <= '2023-06-20')
+                OR (date_from <= '2023-05-15' AND date_to > '2023-05-15')
             )
             SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
                 LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
@@ -41,12 +42,12 @@ class BookingDAO(BaseDAO):
                         Bookings.pool_id == pool_id,
                         or_(
                             and_(
-                                Bookings.time_from >= time_from,
-                                Bookings.time_to <= time_to
+                                Bookings.date_from >= date_from,
+                                Bookings.date_to <= date_to
                             ),
                             and_(
-                                Bookings.time_from <= time_from,
-                                Bookings.time_to > time_from
+                                Bookings.date_from <= date_from,
+                                Bookings.date_to > date_from
                             ),
                         )
                     )
@@ -54,10 +55,10 @@ class BookingDAO(BaseDAO):
             )
 
             """
-                /*SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
+                SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
                 LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
                 WHERE pools.id = 1
-                GROUP BY pools.quantity, booked_pools.pool_id*/
+                GROUP BY pools.quantity, booked_pools.pool_id
             """
 
             get_pools_left = (
@@ -88,8 +89,8 @@ class BookingDAO(BaseDAO):
                     .values(
                         pool_id=pool_id,
                         user_id=user_id,
-                        time_from=time_from,
-                        time_to=time_to,
+                        date_from=date_from,
+                        date_to=date_to,
                         price=price,
                     )
                     .returning(Bookings)

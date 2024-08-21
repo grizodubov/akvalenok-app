@@ -21,16 +21,16 @@ router.include_router(router_pool)
 @cache(expire=30)
 async def get_spaces_by_location_and_time(
         location: str,
-        time_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
-        time_to: date = Query(
+        date_from: date = Query(..., description=f"Например, {datetime.now().date()}"),
+        date_to: date = Query(
             ..., description=f"Например, {(datetime.now() + timedelta(days=14)).date()}"
         ),
 ) -> list[SSpace]:
-    if time_from > time_to:
+    if date_from > date_to:
         raise DateFromCannotBeAfterDateTo
-    if (time_to - time_from).days > 31:
+    if (date_to - date_from).days > 31:
         raise CannotBookSpaceForLongPeriod
-    spaces = await SpacesDAO.find_all(location, time_from, time_to)
+    spaces = await SpacesDAO.find_all(location, date_from, date_to)
     spaces_parsed = TypeAdapter(list[SSpace]).validate_python(spaces)
     return spaces_parsed
 

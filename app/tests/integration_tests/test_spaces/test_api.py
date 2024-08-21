@@ -4,7 +4,7 @@ from httpx import AsyncClient
 
 
 @pytest.mark.parametrize(
-    "location,time_from,time_to,status_code",
+    "location,date_from,date_to,status_code",
     [
         ("Алтай", "2023-11-24", "2023-11-20", status.HTTP_400_BAD_REQUEST),
         ("Алтай", "2023-11-24", "2024-01-08", status.HTTP_400_BAD_REQUEST),
@@ -13,8 +13,8 @@ from httpx import AsyncClient
 )
 async def test_get_hotels_by_location_and_time(
         location: str,
-        time_from: str,
-        time_to: str,
+        date_from: str,
+        date_to: str,
         status_code: int,
         get_async_client: AsyncClient,
 ):
@@ -22,8 +22,8 @@ async def test_get_hotels_by_location_and_time(
         f"/spaces/{location}",
         params={
             "location": location,
-            "time_from": time_from,
-            "time_to": time_to,
+            "date_from": date_from,
+            "date_to": date_to,
         },
     )
 

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from fastapi import Response
+from pydantic import TypeAdapter
 
 from app.exceptions import UserAlreadyExistsException, IncorrectEmailOrPasswordException
 from app.users.auth import get_password_hash, authenticate_user, create_access_token
@@ -47,5 +48,9 @@ async def get_current_user(
 
 
 @router.get("/all")
-async def get_all_users(current_user: Users = Depends(get_current_admin_user)):
-    return await UsersDAO.find_all()
+async def get_all_users(
+        current_user: Users = Depends(get_current_admin_user)
+) -> list[SUser]:
+    res = await UsersDAO.find_all()
+    res = [TypeAdapter(SUser).validate_python(user).model_dump() for user in res]
+    return res
