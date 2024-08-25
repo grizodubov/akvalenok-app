@@ -11,7 +11,7 @@ from app.logger import logger  # type: ignore
 
 
 class BookingDAO(BaseDAO):
-    model = Bookings
+    models = Bookings
 
     @classmethod
     async def add(
@@ -21,7 +21,6 @@ class BookingDAO(BaseDAO):
             date_from: date,
             date_to: date
     ):
-        # print(date_from, date_to)
         """
             WITH booked_pools AS (
                 SELECT * FROM bookings
@@ -93,11 +92,17 @@ class BookingDAO(BaseDAO):
                         date_to=date_to,
                         price=price,
                     )
-                    .returning(Bookings)
+                    .returning(
+                        Bookings.id,
+                        Bookings.user_id,
+                        Bookings.pool_id,
+                        Bookings.date_from,
+                        Bookings.date_to,
+                    )
                 )
 
                 new_booking = await session.execute(add_booking)
                 await session.commit()
-                return new_booking.mappings().all()
+                return new_booking.mappings().one()
             else:
                 return None

@@ -27,15 +27,13 @@ async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def add_booking(
         booking: SNewBooking,
-        user: Users = Depends(get_current_user),
-) -> Optional[SBooking]:
+        user: Users = Depends(get_current_user)
+) -> SNewBooking:
     booking_to_add = await BookingDAO.add(
         user.id,
         booking.pool_id,
         booking.date_from,
-        # booking.time_from,
         booking.date_to,
-        # booking.time_to,
     )
     if not booking_to_add:
         raise PoolCannotBeBookedException
