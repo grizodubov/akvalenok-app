@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig host="89.169.174.66" id="148401c3-02fb-4905-8842-9f41648d3cdc" keyPath="$USER_HOME$/.ssh/yc-org-grizodubov" port="22" customName="yc-akvalenok" nameFormat="CUSTOM" username="grizodubov" useOpenSSHConfig="true">
+        <option name="customName" value="yc-akvalenok" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

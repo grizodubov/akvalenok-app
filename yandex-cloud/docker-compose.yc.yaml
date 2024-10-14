@@ -14,9 +14,8 @@ services:
     container_name: booking_swps_redis
 
   akvalenok_app:
-    image: booking_swps_app
-    build:
-      context: .
+    image: {{ env.BACKEND_IMAGE }}
+
     container_name: booking_swps_app
     env_file:
       - .env-non-dev
