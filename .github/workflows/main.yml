@@ -1,34 +1,32 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Push To Yandex Cloud CR
 
-# Controls when the action will run. 
 on:
   release:
     types: [created]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
-  CR_REGISTRY: crpqigq32jhjs6rkne92
-  CR_REPOSITORY: akvalenok-cr-repo
-  IMAGE_TAG: ${{ github.sha }}
-  BACKEND_IMAGE: cr.yandex/${{ CR_REGISTRY }}/${{ CR_REPOSITORY }}:${{ IMAGE_TAG }}
+  APP_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}
+  CELERY_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}celery
+  FLOWER_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}flower
+  NGINX_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}nginx
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  build-app:
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Runs a single command using the runners shell
+      - name: Create env file
+        run: |
+          touch .env-non-dev
+#          echo VITE_OAUTH_CALLBACK="http://team5g.ya-praktikum.tech" >> .env
+#          echo VITE_EXPRESS_API="http://team5g.ya-praktikum.tech/api" >> .env
+          cat .env
+
       - name: Login to Yandex Cloud Container Registry
         id: login-cr
         uses: yc-actions/yc-cr-login@v2
@@ -36,34 +34,82 @@ jobs:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
 
       - name: Build, tag, and push image to Yandex Cloud Container Registry
-        env:
-          CR_REGISTRY: ${{ CR_REGISTRY }}
-          CR_REPOSITORY: ${{ CR_REPOSITORY }}
-          IMAGE_TAG: ${{ IMAGE_TAG }}
         run: |
-          docker build -t cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG .
-          docker push cr.yandex/$CR_REGISTRY/$CR_REPOSITORY:$IMAGE_TAG
+          docker build -t ${{ env.APP_IMAGE }} .
+          docker push ${{ env.APP_IMAGE }}
 
-  deploy:
-    needs:
-      - build
+  build-celery:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        run: |
+          docker build -t ${{ env.CELERY_IMAGE }} .
+          docker push ${{ env.CELERY_IMAGE }}
+
+  build-flower:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        run: |
+          docker build -t ${{ env.FLOWER_IMAGE }} .
+          docker push ${{ env.FLOWER_IMAGE }}
+
+  build-nginx:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Yandex Cloud Container Registry
+        id: login-cr
+        uses: yc-actions/yc-cr-login@v2
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+#        run: |
+#          docker build -t ${{ env.NGINX_IMAGE }} ./nginx
+#          docker push ${{ env.NGINX_IMAGE }}
+
+  deploy:
+    needs: [build-app, build-celery, build-flower, build-nginx]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Deploy COI VM
         id: deploy-coi
         uses: yc-actions/yc-coi-deploy@v2
         env:
-          CR_REGISTRY: ${{ CR_REGISTRY }}
-          CR_REPOSITORY: ${{ CR_REPOSITORY }}
-          IMAGE_TAG: ${{ IMAGE_TAG }}
+          APP_IMAGE: ${{ env.APP_IMAGE }}
+          CELERY_IMAGE: ${{ env.CELERY_IMAGE }}
+          FLOWER_IMAGE: ${{ env.FLOWER_IMAGE }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-          folder-id: b1gf09388k6o0q10ek2k
-          vm-name: compute-vm-2-2-15-hdd-1727617007474
-          vm-service-account-id: ajeubdh95nep24fq32eb
-          vm-subnet-id: e2lsp478jbdhjbvk7r0r
+          folder-id: ${{ secrets.YC_FOLDER_ID }}
+          vm-name: ${{ secrets.YC_VM_NAME }}
+          vm-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
+          vm-subnet-id: ${{ secrets.YC_SUBNET_ID }}
           user-data-path: './yandex-cloud/user-data.yaml'
           docker-compose-path: './yandex-cloud/docker-compose.yc.yaml'

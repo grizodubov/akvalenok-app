@@ -1,21 +1,23 @@
 services:
   db:
     image: postgres:16
+    restart: always
     container_name: booking_swps_db
     volumes:
       - postgresdata:/var/lib/postgresql/data
-    env_file:
+    environment:
       - .env-non-dev
     ports:
       - "5432:5432"
 
   redis:
     image: redis:7
+    restart: always
     container_name: booking_swps_redis
 
   akvalenok_app:
-    image: {{ env.BACKEND_IMAGE }}
-
+    image: {{ env.APP_IMAGE }}
+    restart: always
     container_name: booking_swps_app
     env_file:
       - .env-non-dev
@@ -27,9 +29,8 @@ services:
       - "7777:8000"
 
   celery:
-    image: booking_swps_celery
-    build:
-      context: .
+    image: {{ env.CELERY_IMAGE }}
+    restart: always
     container_name: booking_swps_celery
     command: [ "/akvalenok/docker/celery.sh", "celery" ]
     env_file:
@@ -38,9 +39,8 @@ services:
       - redis
 
   flower:
-    image: booking_swps_flower
-    build:
-      context: .
+    image: {{ env.FLOWER_IMAGE }}
+    restart: always
     container_name: booking_swps_flower
     command: [ "/akvalenok/docker/celery.sh", "flower" ]
     env_file:
@@ -49,6 +49,20 @@ services:
       - redis
     ports:
       - "5555:5555"
+
+  nginx:
+    image: {{ env.NGINX_IMAGE }}
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+    restart: always
+    environment:
+      NGINX_CERT: {{ env.NGINX_CERT }}
+      NGINX_CERT_KEY: {{ env.NGINX_CERT_KEY }}
+    depends_on:
+      - frontend
+      - backend
 
 volumes:
   postgresdata:
