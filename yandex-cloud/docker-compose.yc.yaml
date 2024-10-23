@@ -1,32 +1,64 @@
+x-environment-defaults: &environment-defaults
+  MODE: PROD
+  LOG_LEVEL: INFO
+  SENTRY_DSN: {{ env.SENTRY_DSN }}
+
+  DB_NAME: akvalenok_db
+  DB_USER: akvalenok_user
+  DB_PASS: akvalenok_password
+  DB_HOST: localhost
+  DB_PORT: 5432
+
+  TEST_DB_HOST: localhost
+  TEST_DB_PORT: 5434
+  TEST_DB_USER: postgres
+  TEST_DB_PASS: postgres
+  TEST_DB_NAME: postgres
+
+  SECRET_KEY: {{ env.SECRET_KEY }}
+  ALGORITHM: HS256
+  
+  REDIS_HOST: redis
+  REDIS_PORT: 6379
+  
+  SMTP_HOST: smtp.yandex.com
+  SMTP_PORT: 465
+  SMTP_USER: {{ env.SMTP_USER }}
+  SMTP_PASS: {{ env.SMTP_PASS }}
+
 services:
-  db:
+  postgres:
     image: postgres:16
-    restart: always
-    container_name: booking_swps_db
-    volumes:
-      - postgresdata:/var/lib/postgresql/data
+    container_name: postgres
     environment:
-      - .env-non-dev
+      POSTGRES_DB: akvalenok_db
+      POSTGRES_USER: akvalenok_user
+      POSTGRES_PASSWORD: akvalenok_password
     ports:
       - "5432:5432"
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+    restart: always
 
   redis:
     image: redis:7
-    restart: always
     container_name: booking_swps_redis
+    ports:
+      - "6379:6379"
+    restart: always
 
   akvalenok_app:
     image: {{ env.APP_IMAGE }}
-    restart: always
     container_name: booking_swps_app
-    env_file:
-      - .env-non-dev
+    ports:
+      - "8000:8000"
+    environment:
+      <<: *environment-defaults
     depends_on:
-      - db
+      - postgres
       - redis
     command: ["/akvalenok/docker/app.sh"]
-    ports:
-      - "7777:8000"
+    restart: always
 
   celery:
     image: {{ env.CELERY_IMAGE }}
@@ -52,17 +84,16 @@ services:
 
   nginx:
     image: {{ env.NGINX_IMAGE }}
-    restart: always
     ports:
       - '80:80'
       - '443:443'
-    restart: always
     environment:
       NGINX_CERT: {{ env.NGINX_CERT }}
       NGINX_CERT_KEY: {{ env.NGINX_CERT_KEY }}
     depends_on:
       - frontend
       - backend
+    restart: always
 
 volumes:
   postgresdata:

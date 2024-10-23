@@ -11,6 +11,10 @@ env:
   CELERY_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}celery
   FLOWER_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}flower
   NGINX_IMAGE: cr.yandex/${{ secrets.CR_REGISTRY }}/${{ secrets.CR_REPOSITORY }}:${{ github.sha }}nginx
+  SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  SMTP_PASS: ${{ secrets.SMTP_PASS }}
+  SMTP_USER: ${{ secrets.SMTP_USER }}
 
 jobs:
   build-app:
@@ -20,12 +24,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Create env file
-        run: |
-          touch .env-non-dev
+#      - name: Create env file
+#        run: |
+#          touch .env-non-dev
 #          echo VITE_OAUTH_CALLBACK="http://team5g.ya-praktikum.tech" >> .env
 #          echo VITE_EXPRESS_API="http://team5g.ya-praktikum.tech/api" >> .env
-          cat .env
+#          cat .env
 
       - name: Login to Yandex Cloud Container Registry
         id: login-cr
@@ -105,6 +109,9 @@ jobs:
           APP_IMAGE: ${{ env.APP_IMAGE }}
           CELERY_IMAGE: ${{ env.CELERY_IMAGE }}
           FLOWER_IMAGE: ${{ env.FLOWER_IMAGE }}
+          NGINX_IMAGE: ${{ env.NGINX_IMAGE }}
+          NGINX_CERT: ${{ secrets.NGINX_CERT }}
+          NGINX_CERT_KEY: ${{ secrets.NGINX_CERT_KEY }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           folder-id: ${{ secrets.YC_FOLDER_ID }}
