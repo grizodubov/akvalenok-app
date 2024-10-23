@@ -96,7 +96,7 @@ jobs:
 #          docker push ${{ env.NGINX_IMAGE }}
 
   deploy:
-    needs: [build-app, build-celery, build-flower, build-nginx]
+    needs: [build-app, build-celery, build-flower]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
