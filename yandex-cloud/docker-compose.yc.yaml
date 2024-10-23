@@ -83,16 +83,14 @@ services:
       - "5555:5555"
 
   nginx:
-    image: {{ env.NGINX_IMAGE }}
+    image: nginx:latest
+    volumes:
+      - ./nginx/nginx.yc.conf:/etc/nginx/nginx.conf
+      - static_volume:/static
     ports:
-      - '80:80'
-      - '443:443'
-    environment:
-      NGINX_CERT: {{ env.NGINX_CERT }}
-      NGINX_CERT_KEY: {{ env.NGINX_CERT_KEY }}
+      - "80:80"
     depends_on:
-      - frontend
-      - backend
+      - akvalenok_app
     restart: always
 
 volumes:
