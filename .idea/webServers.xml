@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="6f400c21-fa5a-4227-bb33-4c404d7c1724" name="akvalenok-vm">
-        <fileTransfer accessType="SFTP" host="89.169.174.66" port="22" sshConfigId="148401c3-02fb-4905-8842-9f41648d3cdc" sshConfig="yc-akvalenok" keyPair="true">
+        <fileTransfer accessType="SFTP" host="89.169.166.94" port="22" sshConfigId="148401c3-02fb-4905-8842-9f41648d3cdc" sshConfig="yc-akvalenok" keyPair="true">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
