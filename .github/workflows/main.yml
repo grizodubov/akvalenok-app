@@ -96,7 +96,8 @@ jobs:
 #          docker push ${{ env.NGINX_IMAGE }}
 
   deploy:
-    needs: [build-app, build-celery, build-flower]
+#    needs: [build-app, build-celery, build-flower, build-nginx]
+    needs: [build-app]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -108,16 +109,23 @@ jobs:
         env:
           CR_REGISTRY: ${{ secrets.CR_REGISTRY }}
           CR_REPOSITORY: ${{ secrets.CR_REPOSITORY }}
+          APP_IMAGE: ${{ env.APP_IMAGE }}
+          #          CELERY_IMAGE: ${{ env.CELERY_IMAGE }}
+          #FLOWER_IMAGE: ${{ env.FLOWER_IMAGE }}
+          #NGINX_IMAGE: ${{ env.NGINX_IMAGE }}
           YC_VM_SSH: ${{ secrets.YC_VM_SSH }}
           YC_VM_USERNAME: ${{ secrets.YC_VM_USERNAME }}
-          APP_IMAGE: ${{ env.APP_IMAGE }}
-          CELERY_IMAGE: ${{ env.CELERY_IMAGE }}
-          FLOWER_IMAGE: ${{ env.FLOWER_IMAGE }}
         with:
           yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
           folder-id: ${{ secrets.YC_FOLDER_ID }}
           vm-name: ${{ secrets.YC_VM_NAME }}
           vm-service-account-id: ${{ secrets.YC_SERVICE_ACCOUNT_ID }}
+          vm-cores: 2
+          vm-memory: 2GB
+          vm-core-fraction: 100
+          vm-disk-size: 20GB
+          vm-zone-id: ru-central1-b
+          vm-platform-id: standard-v1
           vm-subnet-id: ${{ secrets.YC_SUBNET_ID }}
           user-data-path: './yandex-cloud/user-data.yaml'
           docker-compose-path: './yandex-cloud/docker-compose.yc.yaml'

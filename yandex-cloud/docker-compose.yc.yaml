@@ -60,38 +60,38 @@ services:
     command: ["/akvalenok/docker/app.sh"]
     restart: always
 
-  celery:
-    image: {{ env.CELERY_IMAGE }}
-    restart: always
-    container_name: booking_swps_celery
-    command: [ "/akvalenok/docker/celery.sh", "celery" ]
-    env_file:
-      - .env-non-dev
-    depends_on:
-      - redis
+#  celery:
+#    image: {{ env.CELERY_IMAGE }}
+#    restart: always
+#    container_name: booking_swps_celery
+#    command: [ "/akvalenok/docker/celery.sh", "celery" ]
+#    env_file:
+#      - .env-non-dev
+#    depends_on:
+#      - redis
+#
+#  flower:
+#    image: {{ env.FLOWER_IMAGE }}
+#    restart: always
+#    container_name: booking_swps_flower
+#    command: [ "/akvalenok/docker/celery.sh", "flower" ]
+#    env_file:
+#      - .env-non-dev
+#    depends_on:
+#      - redis
+#    ports:
+#      - "5555:5555"
 
-  flower:
-    image: {{ env.FLOWER_IMAGE }}
-    restart: always
-    container_name: booking_swps_flower
-    command: [ "/akvalenok/docker/celery.sh", "flower" ]
-    env_file:
-      - .env-non-dev
-    depends_on:
-      - redis
-    ports:
-      - "5555:5555"
-
-  nginx:
-    image: nginx:latest
-    volumes:
-      - ./nginx/nginx.yc.conf:/etc/nginx/nginx.conf
-      - static_volume:/static
-    ports:
-      - "80:80"
-    depends_on:
-      - akvalenok_app
-    restart: always
+#  nginx:
+#    image: nginx:latest
+#    volumes:
+#      - ./nginx/nginx.yc.conf:/etc/nginx/nginx.conf
+#      - static_volume:/static
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - akvalenok_app
+#    restart: always
 
 volumes:
   postgresdata:
