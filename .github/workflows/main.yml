@@ -42,41 +42,41 @@ jobs:
           docker build -t ${{ env.APP_IMAGE }} .
           docker push ${{ env.APP_IMAGE }}
 
-  build-celery:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to Yandex Cloud Container Registry
-        id: login-cr
-        uses: yc-actions/yc-cr-login@v2
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Build, tag, and push image to Yandex Cloud Container Registry
-        run: |
-          docker build -t ${{ env.CELERY_IMAGE }} .
-          docker push ${{ env.CELERY_IMAGE }}
-
-  build-flower:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Login to Yandex Cloud Container Registry
-        id: login-cr
-        uses: yc-actions/yc-cr-login@v2
-        with:
-          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
-
-      - name: Build, tag, and push image to Yandex Cloud Container Registry
-        run: |
-          docker build -t ${{ env.FLOWER_IMAGE }} .
-          docker push ${{ env.FLOWER_IMAGE }}
+#  build-celery:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Login to Yandex Cloud Container Registry
+#        id: login-cr
+#        uses: yc-actions/yc-cr-login@v2
+#        with:
+#          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+#
+#      - name: Build, tag, and push image to Yandex Cloud Container Registry
+#        run: |
+#          docker build -t ${{ env.CELERY_IMAGE }} .
+#          docker push ${{ env.CELERY_IMAGE }}
+#
+#  build-flower:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4
+#
+#      - name: Login to Yandex Cloud Container Registry
+#        id: login-cr
+#        uses: yc-actions/yc-cr-login@v2
+#        with:
+#          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+#
+#      - name: Build, tag, and push image to Yandex Cloud Container Registry
+#        run: |
+#          docker build -t ${{ env.FLOWER_IMAGE }} .
+#          docker push ${{ env.FLOWER_IMAGE }}
 
 #  build-nginx:
 #    runs-on: ubuntu-latest
