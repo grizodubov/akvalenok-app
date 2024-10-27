@@ -123,9 +123,10 @@ jobs:
           vm-cores: 2
           vm-memory: 2GB
           vm-core-fraction: 100
+          vm-disk-type: network-hdd
           vm-disk-size: 20GB
           vm-zone-id: ru-central1-b
-          vm-platform-id: standard-v2
+          vm-platform-id: standard-v3
           vm-subnet-id: ${{ secrets.YC_SUBNET_ID }}
           user-data-path: './yandex-cloud/user-data.yaml'
           docker-compose-path: './yandex-cloud/docker-compose.yc.yaml'
