@@ -18,8 +18,8 @@ class BookingDAO(BaseDAO):
             cls,
             user_id: uuid.UUID,
             pool_id: int,
-            date_from: date,
-            date_to: date
+            start_datetime: datetime,
+            bookings_in_a_row: int
     ):
         """
             WITH booked_pools AS (

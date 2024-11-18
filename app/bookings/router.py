@@ -1,5 +1,3 @@
-from typing import Optional
-
 from fastapi import APIRouter, Depends, status
 from pydantic import TypeAdapter
 
@@ -32,8 +30,8 @@ async def add_booking(
     booking_to_add = await BookingDAO.add(
         user.id,
         booking.pool_id,
-        booking.date_from,
-        booking.date_to,
+        booking.start_datetime,
+        booking.bookings_in_a_row
     )
     if not booking_to_add:
         raise PoolCannotBeBookedException
