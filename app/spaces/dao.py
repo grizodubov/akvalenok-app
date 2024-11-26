@@ -14,15 +14,15 @@ class SpacesDAO(BaseDAO):
 
     @classmethod
     async def find_all(  # type: ignore[override]
-            cls, location: str, date_from: date, date_to: date
+            cls, location: str, start_datetime: date, end_datetime: date
     ):
         """
         WITH booked_pools AS (
             SELECT pool_id, COUNT(pool_id) AS pools_booked
             FROM bookings
             WHERE
-                (date_from >= '2023-05-15' AND date_from <= '2023-06-20') OR
-                (date_from <= '2023-05-15' AND date_to > '2023-05-15')
+                (start_datetime >= '2023-05-15' AND start_datetime <= '2023-06-20') OR
+                (start_datetime <= '2023-05-15' AND end_datetime > '2023-05-15')
             GROUP BY pool_id
         ),
         booked_spaces AS (
@@ -36,7 +36,7 @@ class SpacesDAO(BaseDAO):
         LEFT JOIN booked_spaces ON booked_spaces.space_id = spaces.id
         WHERE pools_left > 0 AND location LIKE '%Алтай%';
         """
-        booked_pools = PoolDAO.get_booked_pools(date_from, date_to)
+        booked_pools = PoolDAO.get_booked_pools(start_datetime, end_datetime)
 
         booked_spaces = (
             select(

@@ -1,8 +1,9 @@
 import uuid
 from datetime import datetime, timezone, date
+from decimal import Decimal
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import ForeignKey, Computed, Integer, DateTime, Float
+from sqlalchemy import ForeignKey, Computed, Integer, DateTime, Float, DECIMAL, Numeric
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 
 from app.database import Base
@@ -20,14 +21,17 @@ class Bookings(Base):
     pool_id: Mapped[int] = mapped_column(ForeignKey("pools.id"))
 
     start_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    bookings_in_a_row: Mapped[int] = mapped_column(Integer, nullable=False)
+    end_datetime: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     lesson_duration_minutes: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
-    price: Mapped[float] = mapped_column(Float, nullable=False)
-    total_cost: Mapped[float] = mapped_column(Computed("bookings_in_a_row * price"))
-    end_datetime: Mapped[datetime] = mapped_column(Computed("start_datetime + timedelta(minutes=bookings_in_a_row * lesson_duration_minutes)"))
+    lessons_in_a_row: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    price: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
+    total_cost: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2),
+        Computed("lessons_in_a_row * price")
+    )
 
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), onupdate=datetime.now(timezone.utc), nullable=True)
+    created_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), onupdate=datetime.now(timezone.utc), nullable=True)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
 
     user: Mapped["Users"] = relationship(back_populates="booking")

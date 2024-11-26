@@ -17,7 +17,7 @@ def create_booking_confirmation_template(
     email.set_content(
         f"""
             <h1>Подтвердите запись на занятие</h1>
-            Вы забронировали бассейн с {booking["date_from"]} по {booking["date_to"]}
+            Вы забронировали бассейн с {booking["start_datetime"]} по {booking["end_datetime"]}
         """,
         subtype="html",
     )

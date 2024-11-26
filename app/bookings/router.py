@@ -4,6 +4,7 @@ from pydantic import TypeAdapter
 from app.bookings.dao import BookingDAO
 from app.bookings.schemas import (
     SBooking,
+    SBookingInfo,
     SNewBooking,
 )
 from app.exceptions import PoolCannotBeBookedException
@@ -18,8 +19,8 @@ router = APIRouter(
 
 
 @router.get("")
-async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBooking]:
-    return await BookingDAO.find_all(user_id=user.id)
+async def get_bookings(user: Users = Depends(get_current_user)) -> list[SBookingInfo]:
+    return await BookingDAO.find_all_with_images(user_id=user.id)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)
@@ -31,7 +32,8 @@ async def add_booking(
         user.id,
         booking.pool_id,
         booking.start_datetime,
-        booking.bookings_in_a_row
+        booking.end_datetime,
+        booking.lessons_in_a_row
     )
     if not booking_to_add:
         raise PoolCannotBeBookedException

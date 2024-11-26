@@ -1,5 +1,5 @@
 import uuid
-from datetime import date, datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import select, and_, or_, func, insert
 
@@ -14,19 +14,35 @@ class BookingDAO(BaseDAO):
     models = Bookings
 
     @classmethod
+    async def find_all_with_images(cls, user_id: uuid.UUID):
+        async with async_session_maker() as session:
+            query = (
+                select(
+                    # __table__.columns нужен для отсутствия вложенности в ответе Алхимии
+                    Bookings.__table__.columns,
+                    Pools.__table__.columns,
+                )
+                .join(Pools, Pools.id == Bookings.pool_id, isouter=True)
+                .where(Bookings.user_id == user_id)
+            )
+            result = await session.execute(query)
+            return result.mappings().all()
+
+    @classmethod
     async def add(
             cls,
             user_id: uuid.UUID,
             pool_id: int,
             start_datetime: datetime,
-            bookings_in_a_row: int
+            end_datetime: datetime,
+            lessons_in_a_row: int
     ):
         """
             WITH booked_pools AS (
                 SELECT * FROM bookings
                 WHERE pool_id = 1
-                AND (date_from >= '2023-05-15' AND date_from <= '2023-06-20')
-                OR (date_from <= '2023-05-15' AND date_to > '2023-05-15')
+                AND (start_datetime >= '2023-05-15' AND start_datetime <= '2023-06-20')
+                OR (start_datetime <= '2023-05-15' AND end_datetime > '2023-05-15')
             )
             SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
                 LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
@@ -41,12 +57,12 @@ class BookingDAO(BaseDAO):
                         Bookings.pool_id == pool_id,
                         or_(
                             and_(
-                                Bookings.date_from >= date_from,
-                                Bookings.date_to <= date_to
+                                Bookings.start_datetime >= start_datetime,
+                                Bookings.end_datetime <= end_datetime
                             ),
                             and_(
-                                Bookings.date_from <= date_from,
-                                Bookings.date_to > date_from
+                                Bookings.start_datetime <= start_datetime,
+                                Bookings.end_datetime > start_datetime
                             ),
                         )
                     )
@@ -88,16 +104,16 @@ class BookingDAO(BaseDAO):
                     .values(
                         pool_id=pool_id,
                         user_id=user_id,
-                        date_from=date_from,
-                        date_to=date_to,
+                        start_datetime=start_datetime,
+                        end_datetime=end_datetime,
                         price=price,
                     )
                     .returning(
                         Bookings.id,
                         Bookings.user_id,
                         Bookings.pool_id,
-                        Bookings.date_from,
-                        Bookings.date_to,
+                        Bookings.start_datetime,
+                        Bookings.end_datetime,
                     )
                 )
 
