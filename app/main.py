@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_versioning import VersionedFastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from redis import asyncio as aioredis
 from sqladmin import Admin
@@ -40,12 +41,12 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         traces_sample_rate=1.0,
         profiles_sample_rate=1.0,
     )
+
 app = FastAPI(
     title="Запись в бассейн",
     lifespan=lifespan
 )
 
-app.mount("/static", StaticFiles(directory="app/static"), "static")
 
 app.include_router(router_users)
 app.include_router(router_bookings)
@@ -56,7 +57,7 @@ app.include_router(router_pages)
 app.include_router(router_images)
 
 origins = [
-    "http://localhost:3000",
+    "http://localhost:8000",
     "http://localhost",
 ]
 
@@ -73,6 +74,12 @@ app.add_middleware(
         "Authorization",
     ],
 )
+# app = VersionedFastAPI(app,
+#    version_format='{major}',
+#    prefix_format='/v{major}',
+#    description='Greet users with a nice message',
+#    lifespan=lifespan
+# )
 
 instrumentator = Instrumentator(
     should_group_status_codes=False,
@@ -81,11 +88,12 @@ instrumentator = Instrumentator(
 instrumentator.instrument(app).expose(app)
 
 admin = Admin(app, engine, authentication_backend=authentication_backend)
-
 admin.add_view(UsersAdmin)
 admin.add_view(SpacesAdmin)
 admin.add_view(PoolsAdmin)
 admin.add_view(BookingsAdmin)
+
+app.mount("/static", StaticFiles(directory="app/static"), "static")
 
 
 @app.middleware("http")

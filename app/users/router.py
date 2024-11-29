@@ -11,7 +11,7 @@ from app.users.schemas import SUserAuth, SUser
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Auth & Пользователи"],
+    tags=["Аутентификация и регистрация"],
 )
 
 
