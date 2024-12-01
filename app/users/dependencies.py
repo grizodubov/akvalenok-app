@@ -12,7 +12,7 @@ from app.exceptions import (
     UserIsNotPresentException,
     IncorrectUserRoleException
 )
-from app.users.dao import UsersDAO
+from app.users.dao import UserDAO
 from app.users.models import Users
 from app.users.schemas import SUser
 
@@ -41,7 +41,7 @@ async def get_current_user(token: str = Depends(get_token)) -> SUser:
     user_id: str = payload.get("sub")
     if not user_id:
         raise UserIsNotPresentException
-    user = await UsersDAO.find_one_or_none(id=uuid.UUID(user_id))
+    user = await UserDAO.find_one_or_none(id=uuid.UUID(user_id))
     if not user:
         raise UserIsNotPresentException
     return user

@@ -23,7 +23,7 @@ from app.images.router import router as router_images
 from app.importer.router import router as router_importer
 from app.logger import logger
 from app.pages.router import router as router_pages
-from app.users.router import router as router_users
+from app.users.router import router_auth, router_users
 
 
 @asynccontextmanager
@@ -44,19 +44,22 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     title="Запись в бассейн",
+    version="0.1.0",
+    root_path="/api",
     lifespan=lifespan
 )
 
-
+app.include_router(router_auth)
 app.include_router(router_users)
-app.include_router(router_bookings)
 app.include_router(router_spaces)
+app.include_router(router_bookings)
+
+app.include_router(router_images)
 app.include_router(router_importer)
 
-app.include_router(router_pages)
-app.include_router(router_images)
 
 origins = [
+    "http://localhost:3000",
     "http://localhost:8000",
     "http://localhost",
 ]
@@ -74,12 +77,13 @@ app.add_middleware(
         "Authorization",
     ],
 )
-# app = VersionedFastAPI(app,
-#    version_format='{major}',
-#    prefix_format='/v{major}',
-#    description='Greet users with a nice message',
-#    lifespan=lifespan
-# )
+app = VersionedFastAPI(app,
+   version_format='{major}',
+   prefix_format='/api/v{major}',
+   description='Greet users with a nice message',
+   lifespan=lifespan
+)
+app.include_router(router_pages)
 
 instrumentator = Instrumentator(
     should_group_status_codes=False,

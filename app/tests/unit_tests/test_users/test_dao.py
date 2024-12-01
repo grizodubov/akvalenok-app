@@ -1,7 +1,7 @@
 import pytest
 from pydantic import EmailStr
 
-from app.users.dao import UsersDAO
+from app.users.dao import UserDAO
 
 
 @pytest.mark.parametrize(
@@ -13,7 +13,7 @@ from app.users.dao import UsersDAO
     ],
 )
 async def test_find_user_by_id(user_id: int, email: EmailStr, exists: bool):
-    user = await UsersDAO.find_one_or_none(id=user_id)
+    user = await UserDAO.find_one_or_none(id=user_id)
 
     if exists:
         assert user
