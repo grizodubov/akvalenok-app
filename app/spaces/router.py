@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query
 from fastapi_cache.decorator import cache
 from pydantic import TypeAdapter
 
-from app.exceptions import CannotBookSpaceForLongPeriod, DateFromCannotBeAfterDateTo
+from app.exceptions import CannotBookSpaceForLongPeriodException, TimeFromCannotBeAfterTimeToException
 from app.spaces.dao import SpacesDAO
 from app.spaces.pools.router import router as router_pool
 from app.spaces.schemas import SSpace
@@ -27,9 +27,9 @@ async def get_spaces_by_location_and_time(
         ),
 ) -> list[SSpace]:
     if date_from > date_to:
-        raise DateFromCannotBeAfterDateTo
+        raise TimeFromCannotBeAfterTimeToException
     if (date_to - date_from).days > 31:
-        raise CannotBookSpaceForLongPeriod
+        raise CannotBookSpaceForLongPeriodException
     spaces = await SpacesDAO.find_all(location, date_from, date_to)
     spaces_parsed = TypeAdapter(list[SSpace]).validate_python(spaces)
     return spaces_parsed

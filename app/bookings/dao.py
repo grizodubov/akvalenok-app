@@ -2,10 +2,12 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import select, and_, or_, func, insert
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.dao.base import BaseDAO
 from app.bookings.models import Bookings
 from app.database import async_session_maker
+from app.exceptions import PoolFullyBookedException
 from app.spaces.pools.models import Pools
 from app.logger import logger  # type: ignore
 
@@ -49,76 +51,93 @@ class BookingDAO(BaseDAO):
             WHERE pools.id = 1
             GROUP BY pools.quantity, booked_pools.pool_id
         """
-        async with async_session_maker() as session:
-            booked_pools = (
-                select(Bookings)
-                .where(
-                    and_(
-                        Bookings.pool_id == pool_id,
-                        or_(
-                            and_(
-                                Bookings.start_datetime >= start_datetime,
-                                Bookings.end_datetime <= end_datetime
-                            ),
-                            and_(
-                                Bookings.start_datetime <= start_datetime,
-                                Bookings.end_datetime > start_datetime
-                            ),
+        try:
+            async with async_session_maker() as session:
+                booked_pools = (
+                    select(Bookings)
+                    .where(
+                        and_(
+                            Bookings.pool_id == pool_id,
+                            or_(
+                                and_(
+                                    Bookings.start_datetime >= start_datetime,
+                                    Bookings.end_datetime <= end_datetime
+                                ),
+                                and_(
+                                    Bookings.start_datetime <= start_datetime,
+                                    Bookings.end_datetime > start_datetime
+                                ),
+                            )
+                        )
+                    ).cte("booked_pools")
+                )
+
+                """
+                    SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
+                    LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
+                    WHERE pools.id = 1
+                    GROUP BY pools.quantity, booked_pools.pool_id
+                """
+
+                get_pools_left = (
+                    select(
+                        (Pools.quantity - func.count(booked_pools.c.pool_id)).label("pools_left")
+                    )
+                    .select_from(Pools)
+                    .join(
+                        booked_pools, Pools.id == booked_pools.c.pool_id, isouter=True
+                    )
+                    .where(Pools.id == pool_id)
+                    .group_by(Pools.quantity, booked_pools.c.pool_id)
+                )
+                # print(get_pools_left.compile(engine, compile_kwargs={"literal_binds": True}))
+
+                query = await session.execute(get_pools_left)
+                pools_left: int = query.mappings().one().pools_left
+
+                # print(pools_left)
+
+                if pools_left > 0:
+                    # get_price = select(Pools.price).where(Pools.id == pool_id).cte("get_price")
+                    get_price = select(Pools.price).filter_by(id=pool_id)
+                    query = await session.execute(get_price)
+                    price: int = query.mappings().one().price
+                    add_booking = (
+                        insert(Bookings)
+                        .values(
+                            pool_id=pool_id,
+                            user_id=user_id,
+                            start_datetime=start_datetime,
+                            end_datetime=end_datetime,
+                            price=price,
+                        )
+                        .returning(
+                            Bookings.id,
+                            Bookings.user_id,
+                            Bookings.pool_id,
+                            Bookings.start_datetime,
+                            Bookings.end_datetime,
                         )
                     )
-                ).cte("booked_pools")
-            )
 
-            """
-                SELECT pools.quantity - COUNT(booked_pools.pool_id) FROM pools
-                LEFT JOIN booked_pools ON booked_pools.pool_id = pools.id
-                WHERE pools.id = 1
-                GROUP BY pools.quantity, booked_pools.pool_id
-            """
-
-            get_pools_left = (
-                select(
-                    (Pools.quantity - func.count(booked_pools.c.pool_id)).label("pools_left")
-                )
-                .select_from(Pools)
-                .join(
-                    booked_pools, booked_pools.c.pool_id == Pools.id, isouter=True
-                )
-                .where(Pools.id == pool_id)
-                .group_by(Pools.quantity, booked_pools.c.pool_id)
-            )
-            # print(get_pools_left.compile(engine, compile_kwargs={"literal_binds": True}))
-
-            query = await session.execute(get_pools_left)
-            pools_left: int = query.mappings().one().pools_left
-
-            # print(pools_left)
-
-            if pools_left > 0:
-                # get_price = select(Pools.price).where(Pools.id == pool_id).cte("get_price")
-                get_price = select(Pools.price).filter_by(id=pool_id)
-                query = await session.execute(get_price)
-                price: int = query.mappings().one().price
-                add_booking = (
-                    insert(Bookings)
-                    .values(
-                        pool_id=pool_id,
-                        user_id=user_id,
-                        start_datetime=start_datetime,
-                        end_datetime=end_datetime,
-                        price=price,
-                    )
-                    .returning(
-                        Bookings.id,
-                        Bookings.user_id,
-                        Bookings.pool_id,
-                        Bookings.start_datetime,
-                        Bookings.end_datetime,
-                    )
-                )
-
-                new_booking = await session.execute(add_booking)
-                await session.commit()
-                return new_booking.mappings().one()
-            else:
-                return None
+                    new_booking = await session.execute(add_booking)
+                    await session.commit()
+                    return new_booking.mappings().one()
+                else:
+                    return None
+        except PoolFullyBookedException:
+            raise PoolFullyBookedException
+        except (SQLAlchemyError, Exception) as e:
+            msg = ""
+            if isinstance(e, SQLAlchemyError):
+                msg = "Database Exc"
+            elif isinstance(e, Exception):
+                msg = "Unknown Exc"
+            msg += ": Cannot add booking"
+            extra = {
+                "user_id": user_id,
+                "room_id": pool_id,
+                "date_from": start_datetime,
+                "date_to": end_datetime,
+            }
+            logger.error(msg, extra=extra, exc_info=True)

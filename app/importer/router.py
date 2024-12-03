@@ -4,7 +4,7 @@ from typing import Literal
 
 from fastapi import APIRouter, Depends, UploadFile
 
-from app.exceptions import CannotAddDataToDatabase, CannotProcessCSV
+from app.exceptions import CannotAddDataToDatabaseException, CannotProcessCSVException
 from app.importer.utils import TABLE_MODEL_MAP, convert_csv_to_postgres_format
 from app.users.dependencies import get_current_user
 
@@ -28,7 +28,7 @@ async def import_data_to_table(
     data = convert_csv_to_postgres_format(csv_reader)
     file.file.close()
     if not data:
-        raise CannotProcessCSV
+        raise CannotProcessCSVException
     added_data = await model_dao.add_bulk(data)
     if not added_data:
-        raise CannotAddDataToDatabase
+        raise CannotAddDataToDatabaseException

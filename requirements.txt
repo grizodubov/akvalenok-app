@@ -24,6 +24,7 @@ email_validator==2.2.0
 fastapi==0.115.5
 fastapi-cache2==0.2.2
 fastapi-cli==0.0.5
+fastapi-versioning==0.10.0
 flower==2.0.1
 greenlet==3.1.1
 gunicorn==23.0.0
@@ -54,10 +55,10 @@ prometheus-fastapi-instrumentator==7.0.0
 prometheus_client==0.21.0
 prompt_toolkit==3.0.48
 pyasn1==0.6.1
-pydantic==2.10.0b1
+pydantic==2.10.2
 pydantic-extra-types==2.10.0
 pydantic-settings==2.6.1
-pydantic_core==2.27.0
+pydantic_core==2.27.1
 Pygments==2.18.0
 pymongo==4.10.1
 pytest==8.3.3

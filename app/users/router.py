@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 
 from app.exceptions import (
-    CannotAddDataToDatabase,
+    CannotAddDataToDatabaseException,
     UserAlreadyExistsException,
 )
 from app.users.auth import authenticate_user, create_access_token, get_password_hash
@@ -28,7 +28,7 @@ async def register_user(user_data: SUserAuth):
     hashed_password = get_password_hash(user_data.password)
     new_user = await UserDAO.add(email=user_data.email, hashed_password=hashed_password)
     if not new_user:
-        raise CannotAddDataToDatabase
+        raise CannotAddDataToDatabaseException
 
 
 @router_auth.post("/login")

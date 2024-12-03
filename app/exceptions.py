@@ -37,31 +37,29 @@ class UserIsNotPresentException(BookingException):
     status_code=status.HTTP_401_UNAUTHORIZED
     detail="Пользователь не существует"
 
-class PoolFullyBooked(BookingException):
+class PoolFullyBookedException(BookingException):
     status_code=status.HTTP_409_CONFLICT
     detail="Не осталось свободных бассейнов"
 
 class PoolCannotBeBookedException(BookingException):
-    status_code = status.HTTP_409_CONFLICT
-    detail = "Не осталось свободных бассейнов"
+    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    detail = "Не удалось записаться ввиду неизвестной ошибки"
 
-class DateFromCannotBeAfterDateTo(BookingException):
+class TimeFromCannotBeAfterTimeToException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Дата заезда не может быть позже даты выезда"
+    detail = "Время начала не может быть позже времени окончания"
 
-class CannotBookSpaceForLongPeriod(BookingException):
+class CannotBookSpaceForLongPeriodException(BookingException):
     status_code = status.HTTP_400_BAD_REQUEST
-    detail = "Невозможно забронировать бассейн сроком более месяца"
+    detail = "Невозможно забронировать бассейн сроком более суток"
 
-class CannotAddDataToDatabase(BookingException):
+class CannotAddDataToDatabaseException(BookingException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Не удалось добавить запись"
 
-
-class CannotProcessCSV(BookingException):
+class CannotProcessCSVException(BookingException):
     status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
     detail = "Не удалось обработать CSV файл"
-
 
 class IncorrectUserRoleException(BookingException):
     status_code = status.HTTP_403_FORBIDDEN
